@@ -4,6 +4,8 @@ import vip.linshu.beans.BeansException;
 import vip.linshu.beans.factory.config.BeanDefinition;
 
 public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFactory{
+
+    private InstantiationStrategy instantiationStrategy = new CglibSubclassingInstantiationStrategy();
     @Override
     public Object createBean(String beanName, BeanDefinition beanDefinition) throws BeansException {
         return doCreateBean(beanName, beanDefinition);
@@ -14,7 +16,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
         Class beanClass = beanDefinition.getBeanClass();
         Object bean = null;
         try {
-            bean = beanClass.newInstance();
+            bean = createBeanInstance(beanDefinition);
         }catch (Exception e) {
             throw new BeansException("创建bean失败",e);
         }
@@ -22,8 +24,17 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
         return bean;
     }
 
+    protected Object createBeanInstance(BeanDefinition beanDefinition) {
+        return getInstantiationStrategy().instantiate(beanDefinition);
+    }
 
+    public InstantiationStrategy getInstantiationStrategy() {
+        return instantiationStrategy;
+    }
 
+    public void setInstantiationStrategy(InstantiationStrategy instantiationStrategy) {
+        this.instantiationStrategy = instantiationStrategy;
+    }
 
 
 }
